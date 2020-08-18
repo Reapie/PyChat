@@ -195,6 +195,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def connect_to_server(self):
         self.connected = True
         self.btnConnect.setEnabled(False)
+        self.btnHost.setEnabled(False)
         self.btnSend.setEnabled(True)
         self.btnDisconnect.setEnabled(True)
         # Choosing Nickname

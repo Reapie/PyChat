@@ -91,7 +91,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PyChat"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "PyChat by Reapie"))
         self.groupBox.setTitle(_translate("MainWindow", "SERVER"))
         self.txtInIP.setPlaceholderText(_translate("MainWindow", "IP-Address"))
         self.btnConnect.setText(_translate("MainWindow", "CONNECT TO SERVER"))
@@ -119,6 +119,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         HOST = socket.gethostbyname(socket.gethostname())
         # Starting Server
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((HOST, self.PORT))
         server.listen()
         # Lists For Clients and Their Nicknames
@@ -141,7 +142,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     clients.remove(client)
                     client.close()
                     nickname = nicknames[index]
-                    broadcast('{} left!'.format(nickname).encode('ascii'))
+                    broadcast('<i>{} left!</i>'.format(nickname).encode('ascii'))
                     nicknames.remove(nickname)
                     break
         # Receiving / Listening Function
@@ -155,7 +156,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 nicknames.append(nickname)
                 clients.append(client)
                 # Print And Broadcast Nickname
-                broadcast("{} joined!".format(nickname).encode('ascii'))
+                broadcast("<i>{} joined!</i>".format(nickname).encode('ascii'))
                 # Start Handling Thread For Client
                 thread = threading.Thread(target=handle, args=(client,))
                 thread.setDaemon(True)
@@ -193,15 +194,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     client = client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def connect_to_server(self):
+        self.btnHost.setEnabled(False)
         self.connected = True
         self.btnConnect.setEnabled(False)
-        self.btnHost.setEnabled(False)
         self.btnSend.setEnabled(True)
         self.btnDisconnect.setEnabled(True)
         # Choosing Nickname
-        global nickname
         global client
-        nickname = self.nick()
         # Connecting To Server
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -217,6 +216,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     # If 'NICK' Send Nickname
                     message = client.recv(1024).decode('ascii')
                     if message == 'NICK':
+                        global nickname
+                        nickname = self.nick()
                         client.send(nickname.encode('ascii'))
                     else:
                         self.txtOutChat.append(message)
@@ -225,8 +226,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.txtOutStatus.setText("An error occured!")
                     client.close()
                     break
-        # Sending Messages To Server
-        # Starting Threads For Listening And Writing
+        # Starting Threads For Listening
         receive_thread = threading.Thread(target=receive)
         receive_thread.setDaemon(True)
         receive_thread.start()
@@ -246,8 +246,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.btnHost.setEnabled(True)
         self.btnDisconnect.setEnabled(False)
         self.txtOutStatus.clear()
-    
-    
+
+         
 
 if __name__ == "__main__":
     import sys

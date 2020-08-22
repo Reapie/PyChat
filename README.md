@@ -1,5 +1,4 @@
 # PyChat
-DOES NOT CURRENTLY WORK
 
-LAN Chat Application with PyQt5 and Socket
+LAN P2P Chat Application with SHA512 Encryption
 

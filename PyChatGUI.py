@@ -82,7 +82,7 @@ class Worker1(QtCore.QObject):
                     continue
                 else:
                     data = data.encode()
-                    data = decrypt(data[6 + len(password):]).decode()
+                    data = decrypt(data[6 + len(str(hash(password))):]).decode()
                 #Decrypted and ready to compute
                 if data.startswith("!verify ") and str(data[8:].strip()) == nick and nick != "Anon" and not waiting:
                     send("!unavaliable " + nick)

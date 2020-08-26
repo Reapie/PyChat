@@ -9,7 +9,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-password = ""
+password = "Test"
 PORT = 42069
 SIZE = 1024 * 5
 wanted_nick = ""
@@ -53,10 +53,11 @@ def decrypt(data):
 def listen():
     global wanted_nick, nick
     while True:
-        data = broadcast_recv.recv(SIZE)
-        if not data.startswith(b"!chn " + password.encode() + b" "):
+        data = broadcast_recv.recv(SIZE).decode()
+        if not data.startswith("!chn " + str(hash(password)) +" "):
             continue
         else:
+            data = data.encode()
             data = decrypt(data[6 + len(password):]).decode()
         #Decrypted and ready to compute
         #print(data)
@@ -73,7 +74,7 @@ def listen():
 def send(message):
     if not message.startswith("!"):
         message = "!msg " + nick + ": " + message
-    message = "!chn " + password + " " + encrypt(message.encode()).decode()
+    message = "!chn " + str(hash(password)) + " " + encrypt(message.encode()).decode()
     broadcast_send.sendto(message.encode(), ('<broadcast>', PORT))
 
 
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     verify()
     try:
         while True:
-            send(input(">> "))
+            send(input(nick + ": "))
+            print("\r")
     except KeyboardInterrupt:
         exit()
-

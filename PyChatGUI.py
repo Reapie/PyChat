@@ -42,6 +42,7 @@ broadcast_recv.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 broadcast_recv.bind(("", PORT))
 
 def get_key():
+    global password
     key = password.encode()
     salt = b"[R8b\x7f\xd2\xd1s\x975\x17\xd1\xd7\xf3\xdd\xd2"
     kdf = PBKDF2HMAC(
@@ -62,6 +63,7 @@ def decrypt(data):
     return fernet.decrypt(data)
 
 def send(message):
+    global password
     if not message.startswith("!"):
         message = "!msg " + nick + ": " + message
     message = "!chn " + str(hash(password)) + " " + encrypt(message.encode()).decode()
@@ -149,13 +151,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PyChat"))
-        self.txtInPwd.setPlaceholderText(_translate("MainWindow", "Password"))
-        self.txtInMsg.setPlaceholderText(_translate("MainWindow", "Your Message"))
-        self.btnConnect.setText(_translate("MainWindow", "Connect"))
-        self.btnDisconnect.setText(_translate("MainWindow", "Disconnect"))
-        self.btnSend.setText(_translate("MainWindow", "Send"))
+        self._translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(self._translate("MainWindow", "PyChat"))
+        self.txtInPwd.setPlaceholderText(self._translate("MainWindow", "Password"))
+        self.txtInMsg.setPlaceholderText(self._translate("MainWindow", "Your Message"))
+        self.btnConnect.setText(self._translate("MainWindow", "Connect"))
+        self.btnDisconnect.setText(self._translate("MainWindow", "Disconnect"))
+        self.btnSend.setText(self._translate("MainWindow", "Send"))
     
     def init(self):
         self.server = QThread()
@@ -192,6 +194,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             else:
                 nick = wanted_nick
                 self.addText("<i>You have been verifed</i>")
+                MainWindow.setWindowTitle(self._translate("MainWindow", f"PyChat - Logged in as {nick} in {password}"))
 
     def addText(self, text):
         self.txtOut.append(text)
@@ -201,9 +204,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.txtInMsg.clear()
 
     def connect_btn(self):
-        global connected, wanted_nick
+        global connected, wanted_nick, password
         self.txtInPwd.setEnabled(False)
-        self.password = self.txtInPwd.text()
+        password = self.txtInPwd.text()
         self.btnSend.setEnabled(True)
         self.btnConnect.setEnabled(False)
         self.btnDisconnect.setEnabled(True)
@@ -211,13 +214,14 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.verify()
 
     def disconnect_btn(self):
-        global connected
+        global connected, password
         self.txtInPwd.setEnabled(True)
-        self.password = ""
+        password = ""
         self.btnSend.setEnabled(False)
         self.btnConnect.setEnabled(True)
         self.btnDisconnect.setEnabled(False)
         self.txtOut.clear()
+        MainWindow.setWindowTitle(self._translate("MainWindow", "PyChat"))
         connected = False
 
 

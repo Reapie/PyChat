@@ -101,7 +101,7 @@ if __name__ == '__main__':
     verify()
     try:
         while True:
-            send(input(nick + ": "))
+            send(input("Your Message: "))
             print("\r")
     except KeyboardInterrupt:
         exit()
